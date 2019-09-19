@@ -14,6 +14,7 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
@@ -28,3 +29,10 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email')
+
+    def validate_phone(self, phone_number):
+        user = User.query.filter_by(phone_number=phone_number.data).first()
+        if user is not None:
+            raise ValidationError('Only 1 registered phone number '
+                                  'per customer please')
+
