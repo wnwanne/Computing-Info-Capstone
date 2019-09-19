@@ -6,21 +6,13 @@ from app.models import User
 from werkzeug.urls import url_parse
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
 @login_required
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+    teams = open('teams.txt', 'r')
+    team_names = [line for line in teams.readlines()]
+    return render_template('index.html', title='Home', team_names=team_names)
 
 
 @app.route('/login', methods=['GET', 'POST'])
