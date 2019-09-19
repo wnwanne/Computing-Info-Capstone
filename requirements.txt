@@ -1,0 +1,4 @@
+python-dotenv
+flask-wtf
+config
+flask
