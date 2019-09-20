@@ -10,8 +10,10 @@ from werkzeug.urls import url_parse
 @app.route('/index', methods=['GET'])
 @login_required
 def index():
-    teams = open('teams.txt', 'r')
-    team_names = [line for line in teams.readlines()]
+    team_names = []
+    f = open('teams.txt', 'r')
+    for line in f:
+        team_names.append(line.strip('\n'))
     return render_template('index.html', title='Home', team_names=team_names)
 
 

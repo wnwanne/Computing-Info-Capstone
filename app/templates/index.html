@@ -2,20 +2,20 @@
 
 {% block content %}
 <html lang="en">
-<body bgcolor="#2f4f4f">
 <head>
     <meta charset="UTF-8">
     <title>Team</title>
 </head>
+<body bgcolor="#2f4f4f">
 <H1>Enter your favorite team to get team info </H1> <br>
-<select name= colours method="GET" action="/">
-    {% for team in teams %}
-      <option value = "{{team}}" SELECTED>{{team}}</option>
-      {% endfor %}
-</select>
+<select name= team method="GET" action="/">
+    <option value="{{team_names[0]}}" selected>{{team_names[0]}}</option>
+    {% for team in team_names[1:] %}
+      <option value = "{{team}}">{{team}}</option>
+      {% endfor %} <br>
+    <input type="submit" name="submit_button" value="Search" onclick=""> <br>
 </select>
 </body>
 </html>
 {% endblock %}
-
 
