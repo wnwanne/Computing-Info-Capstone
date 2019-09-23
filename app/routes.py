@@ -1,13 +1,12 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, session
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, SearchForm
 from flask_login import current_user, login_user, logout_user,login_required
 from app.models import User
 from werkzeug.urls import url_parse
 
-
-@app.route('/', methods=['GET'])
-@app.route('/index', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     team_names = []
@@ -52,6 +51,29 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+        session['phone'] = form.phone_number.data
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+
+    #phone = session.get('phone')
+
+    form = SearchForm()
+    team_names = []
+    f = open('teams.txt', 'r')
+    for line in f:
+        team_names.append(line.strip('\n'))
+    it = iter(team_names)
+    team_names = zip(it, it)
+    form.team.choices = team_names
+
+    if request.method == 'POST':
+        flash('Yo')
+        return redirect(url_for('index'))
+    return render_template('search.html', title='Search', form=form)
+

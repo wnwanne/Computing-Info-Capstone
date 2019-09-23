@@ -7,9 +7,11 @@
     <title>Team</title>
 </head>
 <body bgcolor="#2f4f4f">
-<H1>Welcome to our senior project!</H1> <br>
-<H2> Please navigate to the search tab to get stats on favorite team</H2>
+<H1>Select your favorite team to get team info </H1> <br>
+<form action="" method=POST">
+    {{ form.team }}<br>
+    {{ form.submit() }}
+</form>
 </body>
 </html>
 {% endblock %}
-
