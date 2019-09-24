@@ -8,22 +8,21 @@
     </head>
     <body bgcolor="#2f4f4f">
            <div>
-        Menu:
-        <a href="{{ url_for('index') }}">Home</a>
-               <a href="{{ url_for('search') }}">Search</a>
+        <a href="{{ url_for('index') }}" style="color:white">Home</a>
+               <a href="{{ url_for('search') }}" style="color:white">Search</a>
         {% if current_user.is_anonymous %}
-        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('login') }}" style="color:white">Login</a>
         {% else %}
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <a href="{{ url_for('logout') }}" style="color:white">Logout</a>
         {% endif %}
 
     </div>
-        <hr>
+        <hr style="color: deeppink">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>
             {% for message in messages %}
-            <li>{{ message }}</li>
+            <li style="color: deeppink">{{ message }}</li>
             {% endfor %}
         </ul>
         {% endif %}
