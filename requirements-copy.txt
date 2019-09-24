@@ -23,8 +23,6 @@ Jinja2==2.10.1
 Mako==1.0.7
 MarkupSafe==1.0
 nba-api==1.1.4
-numpy==1.17.2
-pandas==0.25.1
 PyJWT==1.7.1
 PySocks==1.7.1
 python-dateutil==2.6.1
