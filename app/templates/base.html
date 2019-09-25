@@ -8,12 +8,12 @@
     </head>
     <body bgcolor="#2f4f4f">
            <div>
-        <a href="{{ url_for('index') }}" style="color:white">Home</a>
-               <a href="{{ url_for('search') }}" style="color:white">Search</a>
+        <a href="{{ url_for('main.index') }}" style="color:white">Home</a>
+               <a href="{{ url_for('main.search') }}" style="color:white">Search</a>
         {% if current_user.is_anonymous %}
-        <a href="{{ url_for('login') }}" style="color:white">Login</a>
+        <a href="{{ url_for('main.login') }}" style="color:white">Login</a>
         {% else %}
-        <a href="{{ url_for('logout') }}" style="color:white">Logout</a>
+        <a href="{{ url_for('main.logout') }}" style="color:white">Logout</a>
         {% endif %}
 
     </div>

@@ -5,18 +5,21 @@ from nba_api.stats.static import players
 from nba_api.stats.endpoints import leaguegamefinder
 import pandas as pd
 import requests
-from app import app, db
+from app import db
+from flask import current_app as app
 from app.forms import LoginForm, RegistrationForm, SearchForm
 from app.models import User
 import flask
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, \
+    session, Blueprint
 from flask_login import current_user, login_user, logout_user, login_required
 from twilio.rest import Client
 from werkzeug.urls import url_parse
 
+bp = Blueprint('main', __name__)
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     team_names = []
@@ -26,34 +29,34 @@ def index():
     return render_template('index.html', title='Home', team_names=team_names)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username  or  password')
-            return redirect(url_for('login'))
+            return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('main.index')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
 
-@app.route('/logout')
+@bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data,
@@ -63,11 +66,11 @@ def register():
         db.session.commit()
         session['phone'] = form.phone_number.data
         flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
+        return redirect(url_for('main.login'))
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/search', methods=['GET', 'POST'])
+@bp.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
     form = SearchForm()
@@ -83,7 +86,7 @@ def search():
     return render_template('search.html', title='Search', form=form)
 
 
-@app.route('/search/sending', methods=['GET', 'POST'])
+@bp.route('/search/sending', methods=['GET', 'POST'])
 @login_required
 def sending():
 
@@ -159,6 +162,6 @@ def sending():
                                          body=Message)
 
         flash("Sending stats... for " + fav_short_team)
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     return render_template('search.html', title='Search', form=form)
