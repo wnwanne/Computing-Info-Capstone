@@ -146,8 +146,8 @@ def saving():
 #         # # Twilio access tokens used to send SMS
 #         # # ADD AUTHENTICATION
 #         # # *******************************************
-#         # acc_sid = 'AC2419cae3c28175a847a4b9b7d539d140'
-#         # auth_token = 'b849044161a5e8ce89f968f0a29743f9'
+#         # acc_sid = ''
+#         # auth_token = ''
 #         # client = Client(acc_sid, auth_token)
 #         # # *******************************************
 #         # # SMS message sent
