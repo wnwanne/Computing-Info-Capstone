@@ -188,6 +188,7 @@ def saving():
 @app.route('/display', methods=['POST', 'GET'])
 @login_required
 def display():
+    #Queries info from DB for display
     team_name = session.get('team_name')
     team = NBAStats.query.filter_by(TEAM_NAME=team_name).first_or_404()
     name_of_team = team.TEAM_NAME
