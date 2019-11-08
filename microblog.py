@@ -1,5 +1,7 @@
 from app import app, db
-from app.models import User, Post
+from app.models import User, NBAStats
+
+db.create_all()
 
 
 @app.shell_context_processor
