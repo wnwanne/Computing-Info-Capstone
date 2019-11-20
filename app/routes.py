@@ -5,6 +5,7 @@ from nba_api.stats.endpoints import leaguegamefinder
 import requests
 import urllib
 import os
+import json
 import sqlalchemy
 from sqlalchemy.sql import exists
 import pyodbc
@@ -86,28 +87,6 @@ def search():
     return render_template('search.html', title='Search', form=form)
 
 
-# def download_image(url):
-#     full_name = str(url) + '.jpg'
-#     urllib.request.urlretrieve(url, 'app/static/fulls'+full_name)
-
-# def download_url_picture(img_url, file_name, folder_name, folder_base):
-#     try:
-#         file_path = folder_base + '/' + folder_name
-#         if not os.path.exists(file_path):
-#             print('???', file_path, '????????')
-#             os.makedirs(file_path)
-#         # ??????
-#         file_suffix = os.path.splitext(img_url)[1]
-#         # ???????????
-#         filename = '{}{}{}{}'.format(file_path, os.sep, file_name, file_suffix)
-#         # ?????????????
-#         request.urlretrieve(img_url, filename=filename)
-#     except IOError as e:
-#         print('??????', e)
-#     except Exception as e:
-#         print('?? ?', e) 
-
-
 @app.route('/search/saving', methods=['GET', 'POST'])
 @login_required
 def saving():
@@ -134,90 +113,44 @@ def saving():
         # Find Name and Logo
         team_logo = team_json['api']['teams'][0]['logo']
         team_name = team_json['api']['teams'][0]['fullName']
-        team_ticket_price = 200 # just putting this constant for now
+        #        team_ticket_price = 200  just putting this constant for now
         session['team_name'] = team_name
         session['logo'] = team_logo
+
+        # Find Average Ticket Price
+        CLIENT_ID = "MTg1MDQzOTB8MTU2OTQ1MDUzNC40"
+
+        # Format input correctly for request
+        formatted_team_name = team_name.replace(" ", "+")
+
+        # Send a request to seatgeek querying for events involving "team" and authenticating with "CLIENT_ID"
+        # They will send back a json file with all of the information
+        r = requests.get(
+            "https://api.seatgeek.com/2/events?q=" + \
+                            formatted_team_name + "&taxonomies.name=sports&type=nba&client_id=" + CLIENT_ID)
+
+        x = json.loads(r.content)
+        average_cost = 0
+        games = 0
+        for event in x["events"]:
+            average_cost = (average_cost + int(event["stats"]["average_price"]))
+            games = (games + 1)
+        cost_per_game = "{0:.2f}".format(average_cost / games)
 
         #check if stats are already in DB
         name_exists = db.session.query(db.exists().where(NBAStats.TEAM_NAME == team_name)).scalar()
         if not name_exists:
-            nba_name = NBAStats(TEAM_NAME=team_name, team_logo=team_logo, avg_price=team_ticket_price)
+            nba_name = NBAStats(TEAM_NAME=team_name, team_logo=team_logo, avg_price=cost_per_game)
             db.session.add(nba_name)
             db.session.commit()
-        # nba_teams = teams.find_teams_by_full_name(team_name)
-        # team_id = nba_teams[0]['id']
-        # game_finder = leaguegamefinder.LeagueGameFinder(team_id_nullable=team_id)
-        # games = game_finder.get_data_frames()[0]
-        # games = games.to_json()
-        # flash(games)
-
-        # Narrow down list of stats and to latest season
-        # games_1819 = games[games.SEASON_ID.str[-4:] == '2018']
-
-        # cols = ['TEAM_NAME', 'GAME_ID', 'GAME_DATE', 'MATCHUP', 'WL',
-        #         'MIN', 'PTS', 'FG_PCT', 'FG3_PCT', 'FT_PCT','REB', 'AST', 'STL', 'BLK', 'TOV', 'PLUS_MINUS']
-        # games_1819 = games_1819[cols]
-        # team_stats = games_1819.mean()
-
-        # # Inserts team stats to db
-        # db.session.add(team_stats)
-        # db.session.commit()
-#         # team_name = games_1819['TEAM_NAME'].to_list()[0]
-
-#
-#         #
-#         #
-#         #
-#         #
-#         # # Twilio access tokens used to send SMS
-#         # # ADD AUTHENTICATION
-#         # # *******************************************
-#         # acc_sid = ''
-#         # auth_token = ''
-#         # client = Client(acc_sid, auth_token)
-#         # # *******************************************
-#         # # SMS message sent
-#         # Message = 'SEASON STATS: Team Name: {}, Minutes Played: {}, PTS: {}, FGM: {}, FGA: {}, ' \
-#         #           'FG_PCT {}, FG3M {}, FG3A {}, FG3_PCT {}, FTM {}, FTA {}, FT_PCT {}, OREB {}, DREB {}, REB {}, AST {}, ' \
-#         #           'STL {}, BLK {}, TOV {}, PF {}, PLUS_MINUS {}'.format(team_name, round(team_stats['MIN'], 2),
-#         #                                                                 round(team_stats['PTS'], 2),
-#         #                                                                 round(team_stats['FGM'], 2),
-#         #                                                                 round(team_stats['FGA'], 2),
-#         #                                                                 round(team_stats['FG_PCT'], 2),
-#         #                                                                 round(team_stats['FG3M'], 2),
-#         #                                                                 round(team_stats['FG3A'], 2),
-#         #                                                                 round(team_stats['FG3_PCT'], 2),
-#         #                                                                 round(team_stats['FTM'], 2),
-#         #                                                                 round(team_stats['FTA'], 2),
-#         #                                                                 round(team_stats['FT_PCT'], 2),
-#         #                                                                 round(team_stats['OREB'], 2),
-#         #                                                                 round(team_stats['DREB'], 2),
-#         #                                                                 round(team_stats['REB'], 2),
-#         #                                                                 round(team_stats['AST'], 2),
-#         #                                                                 round(team_stats['STL'], 2),
-#         #                                                                 round(team_stats['BLK'], 2),
-#         #                                                                 round(team_stats['TOV'], 2),
-#         #                                                                 round(team_stats['PF'], 2),
-#         #                                                                 round(team_stats['PLUS_MINUS'], 2))
-#         # message = client.messages.create(to=phone,
-#         #                                   from_='8622256658',
-#         #                                   body=Message)
-#
-#         flash("Sending stats... for " + fav_short_team)
-
-#         # return redirect(url_for('index'))
         return redirect(url_for('display'))
-#
-#     return render_template('search.html', title='Search', form=form)
+
 
 
 @app.route('/display', methods=['POST', 'GET'])
 @login_required
 def display():
     #Queries info from DB for display
-    team_logo = session.get('logo')
-    #logo = NBAStats.query.filter_by(team_logo=team_logo).first_or_404()
-    #download_url_picture(team_logo, team_logo+'.png', static, app)
     team_name = session.get('team_name')
     team = NBAStats.query.filter_by(TEAM_NAME=team_name).first_or_404()
     name_of_team = team.TEAM_NAME
