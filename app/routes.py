@@ -4,6 +4,7 @@ from nba_api.stats.static import players
 from nba_api.stats.endpoints import leaguegamefinder
 import requests
 import urllib
+import os
 import sqlalchemy
 from sqlalchemy.sql import exists
 import pyodbc
@@ -85,6 +86,28 @@ def search():
     return render_template('search.html', title='Search', form=form)
 
 
+# def download_image(url):
+#     full_name = str(url) + '.jpg'
+#     urllib.request.urlretrieve(url, 'app/static/fulls'+full_name)
+
+# def download_url_picture(img_url, file_name, folder_name, folder_base):
+#     try:
+#         file_path = folder_base + '/' + folder_name
+#         if not os.path.exists(file_path):
+#             print('???', file_path, '????????')
+#             os.makedirs(file_path)
+#         # ??????
+#         file_suffix = os.path.splitext(img_url)[1]
+#         # ???????????
+#         filename = '{}{}{}{}'.format(file_path, os.sep, file_name, file_suffix)
+#         # ?????????????
+#         request.urlretrieve(img_url, filename=filename)
+#     except IOError as e:
+#         print('??????', e)
+#     except Exception as e:
+#         print('?? ?', e) 
+
+
 @app.route('/search/saving', methods=['GET', 'POST'])
 @login_required
 def saving():
@@ -108,15 +131,18 @@ def saving():
         # API Response as JSON
         team_json = response.json()
 
-        # Find Stats
+        # Find Name and Logo
+        team_logo = team_json['api']['teams'][0]['logo']
         team_name = team_json['api']['teams'][0]['fullName']
+        team_ticket_price = 200 # just putting this constant for now
         session['team_name'] = team_name
+        session['logo'] = team_logo
 
         #check if stats are already in DB
-        it_exists = db.session.query(db.exists().where(NBAStats.TEAM_NAME == team_name)).scalar()
-        if not it_exists:
-            nba_stats = NBAStats(TEAM_NAME=team_name)
-            db.session.add(nba_stats)
+        name_exists = db.session.query(db.exists().where(NBAStats.TEAM_NAME == team_name)).scalar()
+        if not name_exists:
+            nba_name = NBAStats(TEAM_NAME=team_name, team_logo=team_logo, avg_price=team_ticket_price)
+            db.session.add(nba_name)
             db.session.commit()
         # nba_teams = teams.find_teams_by_full_name(team_name)
         # team_id = nba_teams[0]['id']
@@ -189,7 +215,13 @@ def saving():
 @login_required
 def display():
     #Queries info from DB for display
+    team_logo = session.get('logo')
+    #logo = NBAStats.query.filter_by(team_logo=team_logo).first_or_404()
+    #download_url_picture(team_logo, team_logo+'.png', static, app)
     team_name = session.get('team_name')
     team = NBAStats.query.filter_by(TEAM_NAME=team_name).first_or_404()
     name_of_team = team.TEAM_NAME
-    return render_template('display.html', title='Display', display=name_of_team)
+    logo_of_team = team.team_logo
+    ticket_price = team.avg_price
+    return render_template('display2.html', title='Display', display=name_of_team,
+                           logo=logo_of_team, avg_price=ticket_price)
