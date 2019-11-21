@@ -3,6 +3,8 @@ from nba_api.stats.static import teams
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import leaguegamefinder
 import requests
+import pandas as pd
+import numpy as np
 import urllib
 import os
 import json
@@ -10,8 +12,8 @@ import sqlalchemy
 from sqlalchemy.sql import exists
 import pyodbc
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, SearchForm
-from app.models import User, NBAStats
+from app.forms import LoginForm, RegistrationForm, SearchForm, GSCOSearchForm
+from app.models import User, NBAStats, GSCO_teams
 import flask
 from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user, login_required
@@ -83,8 +85,21 @@ def search():
     it = iter(team_names)
     team_names = zip(it, it)
     form.team.choices = team_names
-
     return render_template('search.html', title='Search', form=form)
+
+@app.route('/gsco_search', methods=['GET', 'POST'])
+@login_required
+def gsco_search():
+    # opens teams list and sets up dropdown
+    form = GSCOSearchForm()
+    team_names = []
+    f = open('GSCO_teams.txt', 'r')
+    for line in f:
+        team_names.append(line.strip('\n'))
+    it = iter(team_names)
+    team_names = zip(it, it)
+    form.gsco_team.choices = team_names
+    return render_template('gsco_search.html', title='Search', form=form)
 
 
 @app.route('/search/saving', methods=['GET', 'POST'])
@@ -92,7 +107,6 @@ def search():
 def saving():
 
     form = SearchForm()
-    phone = session.get('phone')
 
     if form.validate_on_submit:
         fav_short_team = flask.request.values.get('team')
@@ -115,7 +129,6 @@ def saving():
         team_name = team_json['api']['teams'][0]['fullName']
         #        team_ticket_price = 200  just putting this constant for now
         session['team_name'] = team_name
-        session['logo'] = team_logo
 
         # Find Average Ticket Price
         CLIENT_ID = "MTg1MDQzOTB8MTU2OTQ1MDUzNC40"
@@ -147,6 +160,38 @@ def saving():
 
 
 
+@app.route('/GSCO_search/saving', methods=['GET', 'POST'])
+@login_required
+def GSCO_saving():
+
+    form = GSCOSearchForm()
+
+    if form.validate_on_submit:
+        selected_team = flask.request.values.get('gsco_team')
+        session['selected_team'] = selected_team
+
+        # check if stats are already in DB
+        name_exists = db.session.query(db.exists().where(GSCO_teams.TEAM_NAME == selected_team)).scalar()
+        if not name_exists:
+            token = "c7eXV50z6g4Y5wKV9o2j0LZLP76AJoR-OE9jIwOeg19XCGB6YaY"
+            url_2 = "https://api.pandascore.co/csgo/teams?token={}".format(token)
+
+            response_teams = requests.request("GET", url_2)
+
+            teams_json = response_teams.json()
+
+            df_teams = pd.DataFrame(teams_json)
+            df_teams = df_teams.dropna(how='any', subset=['image_url'])
+            new_df_teams = df_teams[['id', 'name', 'image_url']]
+            selected_team_logo = new_df_teams.loc[new_df_teams['name'] == selected_team]['image_url'].values[0]
+            selected_team_id = new_df_teams.loc[new_df_teams['name'] == selected_team]['id'].values[0]
+
+            gsco_name = GSCO_teams(TEAM_NAME=selected_team, team_logo=selected_team_logo, team_id=str(selected_team_id))
+            db.session.add(gsco_name)
+            db.session.commit()
+        return redirect(url_for('gsco_display'))
+
+
 @app.route('/display', methods=['POST', 'GET'])
 @login_required
 def display():
@@ -158,3 +203,13 @@ def display():
     ticket_price = team.avg_price
     return render_template('display2.html', title='Display', display=name_of_team,
                            logo=logo_of_team, avg_price=ticket_price)
+
+@app.route('/gsco_display', methods=['POST', 'GET'])
+@login_required
+def gsco_display():
+    #Queries info from DB for display
+    gsco_team_name = session.get('selected_team')
+    team = GSCO_teams.query.filter_by(TEAM_NAME=gsco_team_name).first_or_404()
+    name_of_team = team.TEAM_NAME
+    logo_of_team = team.team_logo
+    return render_template('gsco_display2.html', title='Display', display=name_of_team, logo=logo_of_team)

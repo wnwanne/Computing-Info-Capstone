@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Team</title>
+</head>
+<body bgcolor="#2f4f4f">
+<H1 style="color:white">Select your favorite GSCO team to get team info </H1> <br>
+<form action="/GSCO_search/saving" method=POST">
+    {{ form.gsco_team }}<br>
+    {{ form.submit() }}
+</form>
+</body>
+</html>
+{% endblock %}

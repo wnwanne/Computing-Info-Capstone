@@ -8,7 +8,11 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 class SearchForm(FlaskForm):
     team = SelectField('team', validators=[DataRequired], choices=[])
     submit = SubmitField('Search')
-
+    
+    
+class GSCOSearchForm(FlaskForm):
+    gsco_team = SelectField('gsco_team', validators=[DataRequired], choices=[])
+    submit = SubmitField('Search')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

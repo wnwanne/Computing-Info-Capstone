@@ -9,6 +9,13 @@ class NBAStats(db.Model):
     TEAM_NAME = db.Column(db.String(120), primary_key=True)
     team_logo = db.Column(db.String(250))
     avg_price = db.Column(db.Float())
+    
+    
+class GSCO_teams(db.Model):
+    __tablename__ = 'gsco_teams'
+    TEAM_NAME = db.Column(db.String(120), primary_key=True)
+    team_logo = db.Column(db.String(250))
+    team_id = db.Column(db.String(64))
 
 
 class User(UserMixin, db.Model):

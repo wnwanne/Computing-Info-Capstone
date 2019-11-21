@@ -10,6 +10,7 @@
            <div>
         <a href="{{ url_for('index') }}" style="color:white">Home</a>
                <a href="{{ url_for('search') }}" style="color:white">Search</a>
+               <a href="{{ url_for('gsco_search') }}" style="color:white">GSCO Search</a>
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('login') }}" style="color:white">Login</a>
         {% else %}
