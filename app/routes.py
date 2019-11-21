@@ -127,7 +127,7 @@ def saving():
         # Find Name and Logo
         team_logo = team_json['api']['teams'][0]['logo']
         team_name = team_json['api']['teams'][0]['fullName']
-        #        team_ticket_price = 200  just putting this constant for now
+        
         session['team_name'] = team_name
 
         # Find Average Ticket Price

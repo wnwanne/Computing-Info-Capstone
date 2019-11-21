@@ -1,58 +1,58 @@
 ATL
-Hawks
+Atlanta Hawks
 BOS
-Celtics
+Boston Celtics
 CHA
-Hornets
+Charlotte Hornets
 CHI
-Bulls
+Chicago Bulls
 CLE
-Cavs
+Cleveland Cavaliers
 DAL
-Mavericks
+Dallas Mavericks
 DEN
-Nuggets
+Denver Nuggets
 DET
-Pistons
+Detroit Pistons
 GSW
-Warriors
+Golden State Warriors
 HOU
-Rockets
+Houston Rockets
 IND
-Pacers
+Indiana Pacers
 LAC
-Clippers
+Los Angeles Clippers
 LAL
-Lakers
+Los Angeles Lakers
 MEM
-Grizzlies
+Memphis Grizzlies
 MIA
-Heat
+Miami Heat
 MIL
-Bucks
+Milwaukee  Bucks
 MIN
-Timberwolves
+Minnesota Timberwolves
 BKN
-Nets
+Brooklyn Nets
 NOP
-Pelicans
+New Orleans Pelicans
 NYK
-Knicks
+New York Knicks
 ORL
-Magic
+Orlando Magic
 PHI
-76ers
+Philadelphia 76ers
 PHX
-Suns
+Pheonix Suns
 POR
-Trailblazers
+Portland Trailblazers
 SAS
-Spurs
+San Antonio Spurs
 SAC
-Kings
+Sacramento Kings
 TOR
-Raptors
+Toronto Raptors
 UTA
-Jazz
+Utah Jazz
 WAS
-Wizards
+Washington Wizards
