@@ -1,5 +1,5 @@
 alembic==0.9.6
-Babel==2.5.1
+Babel==2.9.1
 blinker==1.4
 botocore==1.12.238
 cement==2.8.2
