@@ -33,7 +33,7 @@ numpy==1.17.2
 pandas==0.25.1
 pathspec==0.5.9
 pyasn1==0.4.7
-PyJWT==1.7.1
+PyJWT==2.4.0
 PyMySQL==0.9.3
 pyodbc==4.0.27
 pypiwin32==223
